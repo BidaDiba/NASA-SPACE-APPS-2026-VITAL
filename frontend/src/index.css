@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Colours live here once; Tailwind, the charts and the 3D scan all read these variables. */
+:root {
+  --bg: 11 16 32; /* #0B1020 */
+  --panel: 20 27 48; /* #141B30 */
+  --border: 38 48 77; /* #26304D */
+  --text: 242 244 248; /* #F2F4F8 */
+  --muted: 169 177 198; /* #A9B1C6 */
+  --accent: 255 138 61; /* #FF8A3D */
+  --nominal: 79 209 163;
+  --watch: 247 201 72;
+  --call: 255 110 110;
+  color-scheme: dark;
+}
+
+/* Night mode: dimmed and red-shifted to protect dark adaptation. Shapes and text still carry status. */
+:root[data-theme='night'] {
+  --bg: 9 3 3;
+  --panel: 22 8 7;
+  --border: 62 24 20;
+  --text: 222 138 118;
+  --muted: 150 86 74;
+  --accent: 226 88 44;
+  --nominal: 176 104 84;
+  --watch: 226 128 60;
+  --call: 255 72 52;
+}
+
+html {
+  background: rgb(var(--bg));
+}
+
+/* The page colour is on <html>. <body> stays transparent so the animated particle field
+   (components/ParticleField.tsx), which is drawn behind everything, shows between the panels.
+   Panels stay solid on top. */
+body {
+  @apply font-sans text-ink antialiased;
+  margin: 0;
+}
+
+/* Glass: a translucent surface that lets the animated background show through, softly blurred
+   so text stays easy to read, with a faint highlight along the top edge. On a phone (where
+   blurring a moving background is costly) and for anyone who asks for less transparency, it is
+   nearly solid and not blurred. */
+.glass {
+  background-color: rgb(var(--panel) / 0.6);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 14px 34px -18px rgb(0 0 0 / 0.6);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+  backdrop-filter: blur(12px) saturate(1.15);
+}
+@media (max-width: 767px) {
+  .glass {
+    background-color: rgb(var(--panel) / 0.88);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background-color: rgb(var(--panel));
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@media print {
+  .glass {
+    background: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* The body scan stands on a finer grid that fades towards the edges. */
+.scan-stage {
+  background-color: rgb(var(--bg) / 0.7);
+  background-image:
+    radial-gradient(ellipse at 50% 46%, transparent 38%, rgb(var(--bg) / 0.92) 100%),
+    linear-gradient(rgb(var(--border) / 0.6) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--border) / 0.6) 1px, transparent 1px),
+    linear-gradient(rgb(var(--border) / 0.26) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--border) / 0.26) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    80px 80px,
+    80px 80px,
+    16px 16px,
+    16px 16px;
+  background-position: center;
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+}
+
+input[type='range'] {
+  min-height: 32px;
+}
+
+/* The flat figure's heart and vessels beat once per heartbeat (the duration is set inline from
+   the resting heart rate). Only brightness and line weight change, and the rate is capped. */
+@keyframes heart-beat {
+  0%, 100% { stroke-width: 0.85; opacity: 0.55; }
+  8% { stroke-width: 1.7; opacity: 1; }
+  30% { stroke-width: 1.3; opacity: 0.85; }
+  50% { stroke-width: 0.85; opacity: 0.6; }
+}
+.heart-beat {
+  animation: heart-beat 1s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  :root {
+    --bg: 255 255 255;
+    --panel: 255 255 255;
+    --border: 150 150 150;
+    --text: 17 17 17;
+    --muted: 80 80 80;
+  }
+  body,
+  .scan-stage {
+    background-image: none;
+  }
+}

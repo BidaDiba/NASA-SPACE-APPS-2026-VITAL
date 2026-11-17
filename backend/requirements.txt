@@ -1,0 +1,6 @@
+# Exact versions, so a fresh install gets what was tested.
+# Tested on Python 3.11 (CI) and 3.13. To upgrade: change a version, run pytest, commit.
+fastapi==0.163.1
+starlette==1.10.0
+uvicorn[standard]==0.54.0
+pydantic==2.14.3
